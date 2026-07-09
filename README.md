@@ -9,17 +9,15 @@
 [![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![Security](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
 
-## 🎬 Video Demo Setup (29 detik)
+## 🎬 Demo Setup (GIF)
 
-Lihat proses deploy dari clone sampai live site — **kurang dari 30 detik**.
+Lihat proses deploy dari clone sampai live site.
 
-https://github.com/Celebez/cf-deploy-tutorial/assets/setup-demo.mp4
+![Setup Demo](assets/setup-demo.gif)
 
-[![Setup Demo](assets/setup-demo.gif)](assets/setup-demo.mp4)
+⬇️ Download: [setup-demo.gif](assets/setup-demo.gif)
 
-⬇️ Download: [setup-demo.mp4](assets/setup-demo.mp4) · [setup-demo.gif](assets/setup-demo.gif)
-
-**Yang ada di video:**
+**Yang ada di GIF:**
 1. Title slide
 2. Clone repo
 3. Login Cloudflare (`wrangler login`)
