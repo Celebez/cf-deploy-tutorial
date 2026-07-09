@@ -9,21 +9,7 @@
 [![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![Security](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
 
-## 🎬 Demo Setup (GIF)
-
-Lihat proses deploy dari clone sampai live site.
-
 ![Setup Demo](assets/setup-demo.gif)
-
-⬇️ Download: [setup-demo.gif](assets/setup-demo.gif)
-
-**Yang ada di GIF:**
-1. Title slide
-2. Clone repo
-3. Login Cloudflare (`wrangler login`)
-4. Deploy static site (`wrangler pages deploy`)
-5. Site live di `*.pages.dev`
-6. 6 contoh runnable di repo
 
 ## 📖 Table of Contents
 
