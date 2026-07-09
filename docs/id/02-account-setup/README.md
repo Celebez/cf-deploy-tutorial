@@ -79,6 +79,15 @@ curl -s "https://api.cloudflare.com/client/v4/user" \
 # → true
 ```
 
+## 📘 Detail Lengkap: API Token & Global API Key
+
+Lihat [**api-keys.md**](./api-keys.md) untuk tutorial komprehensif:
+- Step-by-step ambil API Token (recommended)
+- Step-by-step ambil Global API Key (legacy)
+- Permission IDs lengkap untuk custom token
+- Contoh kode Python/Node/bash pakai token vs key
+- Security best practices & rotation guide
+
 ## Lanjut
 
 → [03. Pages: Static Site (HTML)](../03-pages-static/README.md)
