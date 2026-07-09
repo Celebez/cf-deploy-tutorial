@@ -13,7 +13,7 @@
 
 ### 🇬🇧 English
 1. [Introduction & Architecture](docs/en/01-introduction/README.md)
-2. [Cloudflare Account Setup](docs/en/02-account-setup/README.md) — [API Token & Global API Key Guide](docs/en/02-account-setup/api-keys.md)
+2. [Cloudflare Account Setup](docs/en/02-account-setup/README.md) — [API Token & Global API Key Guide](docs/en/02-account-setup/api-auth.md)
 3. [Pages: Static Site (HTML)](docs/en/03-pages-static/README.md)
 4. [Pages: Next.js Static Export](docs/en/04-pages-nextjs/README.md)
 5. [Workers: API Server](docs/en/05-worker-api/README.md)
@@ -26,7 +26,7 @@
 
 ### 🇮🇩 Bahasa Indonesia
 1. [Pengenalan & Arsitektur](docs/id/01-introduction/README.md)
-2. [Setup Akun Cloudflare](docs/id/02-account-setup/README.md) — [Panduan API Token & Global API Key](docs/id/02-account-setup/api-keys.md)
+2. [Setup Akun Cloudflare](docs/id/02-account-setup/README.md) — [Panduan API Token & Global API Key](docs/id/02-account-setup/api-auth.md)
 3. [Pages: Static Site (HTML)](docs/id/03-pages-static/README.md)
 4. [Pages: Next.js Static Export](docs/id/04-pages-nextjs/README.md)
 5. [Workers: API Server](docs/id/05-worker-api/README.md)

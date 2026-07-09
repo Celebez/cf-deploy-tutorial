@@ -5,10 +5,11 @@
 .dev.vars
 *.pem
 *.key
-*api*token*
-*api*key*
-*secret*.json
 wrangler.toml.local
+
+# NOTE: Patterns like "*api*token*" / "*api*key*" intentionally removed.
+# They were catching legitimate tutorial docs (api-auth.md).
+# Real secret detection is handled by .gitleaks.toml instead.
 
 # Cloudflare
 .wrangler/
