@@ -1,0 +1,23 @@
+name: Welcome First-Time Contributor
+on:
+  pull_request:
+    types: [opened]
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'Celebez'
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-message: |
+            🎉 Thanks for the PR!
+            Maintainer akan review dalam 1–3 hari.
+            Mohon pastikan:
+            - ✅ Tested locally (deploy sukses)
+            - ✅ No API keys/secrets committed
+            - ✅ Bilingual parity (EN + ID) untuk content baru
+            - ✅ Docs updated di kedua bahasa
+          issue-message: |
+            👋 Thanks for opening an issue!
+            Mohon cek docs/ dan existing issues dulu sebelum opening duplicate.

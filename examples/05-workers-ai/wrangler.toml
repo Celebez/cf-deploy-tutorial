@@ -1,0 +1,12 @@
+name = "cf-workers-ai-demo"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[ai]
+binding = "AI"
+
+# Optional: cache storage for repeated queries
+# npx wrangler kv namespace create AI_CACHE
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "REPLACE"

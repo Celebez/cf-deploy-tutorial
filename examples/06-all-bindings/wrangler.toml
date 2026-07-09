@@ -1,0 +1,38 @@
+name = "cf-all-bindings-zoo"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# === Create these first ===
+# npx wrangler d1 create cf-zoo-db
+# npx wrangler kv namespace create CACHE
+# npx wrangler r2 bucket create cf-zoo-storage
+
+# D1 binding
+[[d1_databases]]
+binding = "DB"
+database_name = "cf-zoo-db"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+# KV binding
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_YOUR_KV_ID"
+preview_id = "REPLACE_WITH_YOUR_PREVIEW_KV_ID"
+
+# R2 binding
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "cf-zoo-storage"
+
+# AI binding
+[ai]
+binding = "AI"
+
+# Durable Object
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "Counter"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["Counter"]

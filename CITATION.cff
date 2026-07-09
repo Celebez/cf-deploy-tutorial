@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this tutorial, please cite it as follows:"
+type: software
+title: "cf-deploy-tutorial"
+abstract: >-
+  Complete bilingual (EN/ID) tutorial for deploying websites to Cloudflare Pages
+  and Workers. Covers static sites, Next.js export, Workers API, D1 database,
+  Workers AI, KV/R2/Queues/Durable Objects bindings, Turnstile anti-bot,
+  custom domain, and deployment via Wrangler and REST API. Six working examples
+  included.
+keywords:
+  - cloudflare
+  - cloudflare-pages
+  - cloudflare-workers
+  - d1
+  - workers-ai
+  - turnstile
+  - tutorial
+  - jamstack
+  - edge-computing
+license: MIT
+authors:
+  - family-names: "Celebez"
+    given-names: "0xCelebez"
+repository-code: "https://github.com/Celebez/cf-deploy-tutorial"
+url: "https://github.com/Celebez/cf-deploy-tutorial"
+date-released: "2026-07-09"
+version: "1.0.0"

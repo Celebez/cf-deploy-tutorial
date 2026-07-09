@@ -1,0 +1,35 @@
+title = "Gitleaks"
+
+[extend]
+useDefault = true
+
+# Cloudflare API tokens
+[[rules]]
+id = "cloudflare-api-token"
+description = "Cloudflare API Token"
+regex = '''\bcf[a-z]{2}_[A-Za-z0-9_-]{30,}\b'''
+keywords = ["cfut_", "cfk_", "cfps_", "cfo_"]
+
+# Generic JWT
+[[rules]]
+id = "jwt-token"
+description = "JWT Bearer Token"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'''
+keywords = ["eyJ"]
+
+# AWS-style access keys (in case of R2 S3-compat)
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''\b(AKIA|ASIA)[A-Z0-9]{16}\b'''
+keywords = ["AKIA", "ASIA"]
+
+[allowlist]
+paths = [
+  '''node_modules/''',
+  '''\.next/''',
+  '''out/''',
+  '''dist/''',
+  '''build/''',
+  '''\.wrangler/'''
+]

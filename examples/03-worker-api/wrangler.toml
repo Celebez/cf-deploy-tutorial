@@ -1,0 +1,9 @@
+name = "cf-worker-api-demo"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Create with: npx wrangler kv namespace create CACHE
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_YOUR_KV_ID"
+preview_id = "REPLACE_WITH_YOUR_PREVIEW_KV_ID"

@@ -1,0 +1,28 @@
+name: Lint Examples
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/**'
+      - 'scripts/**'
+  pull_request:
+    branches: [main]
+jobs:
+  lint-md:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            **/*.md
+            !node_modules/**
+  lint-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install ruff
+      - run: ruff check scripts/ examples/ --exclude examples/*/node_modules
