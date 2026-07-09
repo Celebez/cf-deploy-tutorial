@@ -39,12 +39,19 @@
 
 ## ⚡ Quick Start (5 min)
 
+Prasyarat: Node.js 20+, npm, akun Cloudflare. Detail lengkap di [INSTALLATION.md](INSTALLATION.md).
+
 ```bash
 git clone https://github.com/Celebez/cf-deploy-tutorial.git
-cd cf-deploy-tutorial/examples/01-static-site
+cd cf-deploy-tutorial
+
+# Example paling simpel (no build, no deps)
+cd examples/01-static-site
 npx wrangler pages deploy public --project-name=my-site --branch=main
 # → https://my-site.pages.dev
 ```
+
+Untuk semua 6 example step-by-step + troubleshooting, baca [**INSTALLATION.md**](INSTALLATION.md).
 
 ## 🎯 Siapa yang butuh repo ini?
 
