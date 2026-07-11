@@ -2,6 +2,9 @@ import { Router } from 'itty-router';
 
 export interface Env {
   CACHE: KVNamespace;
+  // Comma-separated allowed origins. If unset, defaults to '*' (dev only).
+  // PRODUCTION: set to your domain(s), e.g. "https://app.example.com".
+  CORS_ORIGIN?: string;
 }
 
 interface User {
@@ -13,12 +16,15 @@ interface User {
 
 const router = Router();
 
+// Allowed origins — set at fetch time from env, falls back to '*' for dev.
+let CORS_ORIGIN = '*';
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
@@ -47,14 +53,18 @@ router.get('/cache-demo', async (_, env: Env) => {
   return json({ source: 'origin', value: fresh });
 });
 
-// Users CRUD (KV-backed)
+// Users CRUD (KV-backed) — paginate through all keys (>1000 safe)
 router.get('/users', async (_, env: Env) => {
-  const list = await env.CACHE.list({ prefix: 'user:' });
   const users: User[] = [];
-  for (const key of list.keys) {
-    const u = await env.CACHE.get<User>(key.name, 'json');
-    if (u) users.push(u);
-  }
+  let cursor: string | undefined;
+  do {
+    const list = await env.CACHE.list({ prefix: 'user:', cursor });
+    for (const key of list.keys) {
+      const u = await env.CACHE.get<User>(key.name, 'json');
+      if (u) users.push(u);
+    }
+    cursor = list.list_complete ? undefined : list.cursor;
+  } while (cursor);
   return json({ count: users.length, users });
 });
 
@@ -91,5 +101,8 @@ router.delete('/users/:id', async ({ params }, env: Env) => {
 router.all('*', () => json({ error: 'Not Found' }, 404));
 
 export default {
-  fetch: router.handle,
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    CORS_ORIGIN = env.CORS_ORIGIN ?? '*';
+    return router.handle(request, env, ctx);
+  },
 };

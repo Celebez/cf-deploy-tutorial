@@ -10,4 +10,7 @@ database_id = "REPLACE_WITH_YOUR_D1_ID"
 
 # Required secrets (set via `wrangler secret put`):
 # JWT_SECRET        — random 32+ byte string
-# TURNSTILE_SECRET  — from Cloudflare Turnstile widget (optional)
+# TURNSTILE_SECRET  — from Cloudflare Turnstile widget (optional but enforced in prod)
+# PROD              — set to "1" to hard-require Turnstile
+# CORS_ORIGIN       — comma-separated allowed origins (e.g. "https://app.example.com")
+# BOOTSTRAP_TOKEN  — one-time token to create the first admin via /api/bootstrap-admin

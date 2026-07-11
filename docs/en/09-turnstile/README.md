@@ -149,9 +149,9 @@ Secret Key: 2x0000000000000000000000000000000AA
 ## Security Audit Checklist
 
 For Worker auth APIs:
-1. ✅ **CORS** — restrict to known domains in production.
+1. ✅ **CORS** — set `CORS_ORIGIN` env to your domain(s); never ship `*` to production.
 2. ✅ **Rate limiting** — IP-based counter in D1/KV.
-3. ✅ **Turnstile** on register + login + forgot-password.
+3. ✅ **Turnstile** on register + login + forgot-password. In `example 04`, Turnstile is enforced whenever `TURNSTILE_SECRET` is set OR `PROD="1"` (fail-closed — requests without a valid token are rejected, never silently passed).
 4. ✅ **PBKDF2 / Argon2** instead of plain SHA-256 for passwords.
 5. ✅ **JWT expiry** — 7 days max, refresh token pattern for longer.
 6. ✅ **Generic error** — don't reveal if email exists on login (`Invalid credentials` for both).

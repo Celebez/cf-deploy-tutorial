@@ -5,6 +5,12 @@ export interface Env {
   DB: D1Database;
   JWT_SECRET: string;
   TURNSTILE_SECRET?: string;
+  // Comma-separated allowed origins. If unset, defaults to '*' (dev only).
+  CORS_ORIGIN?: string;
+  // Set to "1" in production to hard-require Turnstile even if secret unset.
+  PROD?: string;
+  // One-time token to create the first admin (set via `wrangler secret put`).
+  BOOTSTRAP_TOKEN?: string;
 }
 
 interface User {
@@ -16,10 +22,13 @@ interface User {
 
 const router = Router({ base: '/api' });
 
+// Allowed origins — set at fetch time from env, falls back to '*' for dev.
+let CORS_ORIGIN = '*';
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN },
   });
 
 // PBKDF2 via Web Crypto
@@ -106,7 +115,37 @@ async function verifyTurnstile(token: string, secret: string, ip: string): Promi
   return data.success === true;
 }
 
+// Enforce Turnstile when configured OR running in production mode.
+function turnstileRequired(env: Env): boolean {
+  return !!env.TURNSTILE_SECRET || env.PROD === '1';
+}
+
 // === Routes ===
+
+// One-time admin bootstrap (no admin exists yet, or token matches BOOTSTRAP_TOKEN)
+router.post('/bootstrap-admin', async (request: Request, env: Env) => {
+  if (!env.BOOTSTRAP_TOKEN) {
+    return json({ error: 'Bootstrap disabled (no BOOTSTRAP_TOKEN set)' }, 403);
+  }
+  const { email, password, token } = await request.json<any>();
+  if (token !== env.BOOTSTRAP_TOKEN) return json({ error: 'Invalid bootstrap token' }, 403);
+  if (!email || !password || password.length < 8) {
+    return json({ error: 'Email & password (min 8 char) wajib' }, 400);
+  }
+
+  const password_hash = await makeHash(password);
+  try {
+    const result = await env.DB.prepare(
+      'INSERT INTO users (email, password_hash, is_admin, approved) VALUES (?, ?, 1, 1)'
+    ).bind(email, password_hash).run();
+    return json({ ok: true, admin_id: result.meta.last_row_id }, 201);
+  } catch (e: any) {
+    if (e.message?.includes('UNIQUE')) {
+      return json({ error: 'Email sudah terdaftar' }, 409);
+    }
+    return json({ error: 'Server error' }, 500);
+  }
+});
 
 router.post('/register', async (request: Request, env: Env) => {
   const { email, password, turnstileToken } = await request.json<any>();
@@ -115,11 +154,11 @@ router.post('/register', async (request: Request, env: Env) => {
     return json({ error: 'Email & password (min 8 char) wajib' }, 400);
   }
 
-  // Optional Turnstile check
-  if (env.TURNSTILE_SECRET) {
+  // Optional-but-enforced Turnstile check (fail-closed in prod)
+  if (turnstileRequired(env)) {
     if (!turnstileToken) return json({ error: 'Verifikasi bot wajib' }, 403);
     const ip = request.headers.get('CF-Connecting-IP') ?? '0.0.0.0';
-    const valid = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET, ip);
+    const valid = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET ?? '', ip);
     if (!valid) return json({ error: 'Bot terdeteksi' }, 403);
   }
 
@@ -187,5 +226,8 @@ router.post('/admin/users/:id/approve', async (request: Request, env: Env) => {
 router.all('*', () => json({ error: 'Not Found' }, 404));
 
 export default {
-  fetch: router.handle,
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    CORS_ORIGIN = env.CORS_ORIGIN ?? '*';
+    return router.handle(request, env, ctx);
+  },
 };

@@ -72,9 +72,9 @@ Untuk semua 6 example step-by-step + troubleshooting, baca [**INSTALLATION.md**]
 | 01 | [Static HTML](examples/01-static-site/) | Pages | HTML + CSS murni |
 | 02 | [Next.js Static](examples/02-nextjs-static/) | Pages + Tailwind v4 | Next.js 15 + Tailwind v4 |
 | 03 | [Worker API](examples/03-worker-api/) | Workers | REST API + KV cache |
-| 04 | [Worker + D1 Auth](examples/04-worker-auth-d1/) | Workers + D1 | JWT + bcrypt + Turnstile |
+| 04 | [Worker + D1 Auth](examples/04-worker-auth-d1/) | Workers + D1 | JWT + PBKDF2 + Turnstile |
 | 05 | [Workers AI](examples/05-workers-ai/) | Workers + AI | Llama 3.2 inference |
-| 06 | [All Bindings Zoo](examples/06-all-bindings/) | All | D1 + KV + R2 + AI + Queues |
+| 06 | [All Bindings Zoo](examples/06-all-bindings/) | All | D1 + KV + R2 + AI + Durable Objects |
 
 ## 📜 License
 

@@ -72,7 +72,7 @@ def main() -> None:
 
     # 2. Custom domains
     if account_id and token:
-        print(f"\n[2] Custom domains:")
+        print("\n[2] Custom domains:")
         domains = get_project_domains(account_id, token, project)
         if not domains:
             print("    (none configured)")

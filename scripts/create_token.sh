@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 # Create Cloudflare API Token via REST API.
-# Usage: bash scripts/create_token.sh <your-global-api-key> <your-email> <account-id>
+# Usage: CF_EMAIL=you@x.com CF_KEY=cfk_xxx ACCOUNT_ID=xxx bash scripts/create_token.sh
 #
+# NOTE: pass CF_KEY via ENVIRONMENT (not argv) so it never appears in `ps`/history.
 # Get global API key: https://dash.cloudflare.com/profile/api-tokens
 # Get account ID: wrangler whoami
 
 set -euo pipefail
 
-GLOBAL_KEY="${1:-}"
-EMAIL="${2:-}"
-ACCOUNT_ID="${3:-}"
+EMAIL="${CF_EMAIL:-}"
+GLOBAL_KEY="${CF_KEY:-}"
+ACCOUNT_ID="${ACCOUNT_ID:-}"
 
 if [[ -z "$GLOBAL_KEY" || -z "$EMAIL" || -z "$ACCOUNT_ID" ]]; then
-  echo "Usage: $0 <global-api-key> <email> <account-id>"
+  echo "Usage: CF_EMAIL=you@x.com CF_KEY=cfk_xxx ACCOUNT_ID=xxx $0" >&2
   echo ""
   echo "Get global API key:  https://dash.cloudflare.com/profile/api-tokens"
   echo "Get account ID:       wrangler whoami"

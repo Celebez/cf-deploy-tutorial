@@ -2,23 +2,36 @@
 # Setup Cloudflare custom domain for a Pages project.
 # Deletes conflicting A/AAAA records first, then creates CNAME.
 #
-# Usage: CF_EMAIL=you@x.com CF_KEY=cfk_xxx ZONE_ID=xxx PROJECT=my-site DOMAIN=example.com bash scripts/setup_custom_domain.sh
+# Prefers a scoped API Token (CLOUDFLARE_API_TOKEN) when set; falls back to a
+# Global API Key (CF_EMAIL + CF_KEY) only if no token is provided.
+#   API Token (preferred):  export CLOUDFLARE_API_TOKEN="cfut_..."
+#   Global Key (legacy):    CF_EMAIL=you@x.com CF_KEY=cfk_xxx
+#   Required for both:      ZONE_ID=xxx PROJECT=my-site DOMAIN=example.com
 
 set -euo pipefail
 
-: "${CF_EMAIL:?Set CF_EMAIL}"
-: "${CF_KEY:?Set CF_KEY (Global API Key)}"
-: "${ZONE_ID:?Set ZONE_ID}"
-: "${PROJECT:?Set PROJECT (Pages project name)}"
-: "${DOMAIN:?Set DOMAIN (e.g., example.com)}"
+ZONE_ID="${ZONE_ID:?Set ZONE_ID}"
+PROJECT="${PROJECT:?Set PROJECT (Pages project name)}"
+DOMAIN="${DOMAIN:?Set DOMAIN (e.g., example.com)}"
+
+# Build auth headers: token preferred, global key fallback.
+if [[ -n "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  AUTH_HEADER=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+  echo "🔑 Using scoped API Token for auth."
+elif [[ -n "${CF_EMAIL:-}" && -n "${CF_KEY:-}" ]]; then
+  AUTH_HEADER=(-H "X-Auth-Email: ${CF_EMAIL}" -H "X-Auth-Key: ${CF_KEY}")
+  echo "⚠️  Using Global API Key (legacy). Prefer CLOUDFLARE_API_TOKEN for safety."
+else
+  echo "❌ Set CLOUDFLARE_API_TOKEN, or CF_EMAIL + CF_KEY" >&2
+  exit 1
+fi
 
 API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
-HEADERS=(-H "X-Auth-Email: ${CF_EMAIL}" -H "X-Auth-Key: ${CF_KEY}" -H "Content-Type: application/json")
 
 echo "🔍 Checking existing DNS records for ${DOMAIN}..."
 
 # 1. Delete conflicting A/AAAA records
-EXISTING=$(curl -s "${API}?name=${DOMAIN}&type=A,AAAA" "${HEADERS[@]}")
+EXISTING=$(curl -s "${API}?name=${DOMAIN}&type=A,AAAA" "${AUTH_HEADER[@]}")
 COUNT=$(echo "$EXISTING" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('result', [])))")
 
 if [[ "$COUNT" -gt 0 ]]; then
@@ -29,8 +42,9 @@ records = json.load(sys.stdin).get('result', [])
 for r in records:
     url = f'https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/{r[\"id\"]}'
     req = urllib.request.Request(url, method='DELETE', headers={
-        'X-Auth-Email': '${CF_EMAIL}',
-        'X-Auth-Key': '${CF_KEY}'
+        'Authorization': 'Bearer ${CLOUDFLARE_API_TOKEN:-}',
+        'X-Auth-Email': '${CF_EMAIL:-}',
+        'X-Auth-Key': '${CF_KEY:-}'
     })
     urllib.request.urlopen(req)
     print(f'  Deleted {r[\"type\"]} {r[\"name\"]}')
@@ -39,7 +53,7 @@ fi
 
 # 2. Create CNAME for apex
 echo "📡 Creating CNAME for ${DOMAIN}..."
-curl -s -X POST "${API}" "${HEADERS[@]}" --data "{
+curl -s -X POST "${API}" "${AUTH_HEADER[@]}" --data "{
   \"type\": \"CNAME\",
   \"name\": \"@\",
   \"content\": \"${PROJECT}.pages.dev\",

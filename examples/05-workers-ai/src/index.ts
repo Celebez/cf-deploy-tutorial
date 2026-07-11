@@ -1,20 +1,26 @@
 export interface Env {
   AI: Ai;
   CACHE?: KVNamespace;
+  // Comma-separated allowed origins. If unset, defaults to '*' (dev only).
+  CORS_ORIGIN?: string;
 }
+
+// Allowed origins — set at fetch time from env, falls back to '*' for dev.
+let CORS_ORIGIN = '*';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     },
   });
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    CORS_ORIGIN = env.CORS_ORIGIN ?? '*';
     if (request.method === 'OPTIONS') return json(null, 204);
     const url = new URL(request.url);
 
@@ -48,19 +54,23 @@ export default {
       const { prompt } = await request.json<{ prompt: string }>();
       if (!prompt) return json({ error: 'prompt required' }, 400);
 
-      const stream = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
-        messages: [{ role: 'user', content: prompt }],
-        stream: true,
-        max_tokens: 512,
-      });
+      try {
+        const stream = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
+          messages: [{ role: 'user', content: prompt }],
+          stream: true,
+          max_tokens: 512,
+        });
 
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
-      });
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        });
+      } catch (e: any) {
+        return json({ error: 'AI streaming failed', detail: e?.message ?? 'unknown' }, 500);
+      }
     }
 
     // Embedding

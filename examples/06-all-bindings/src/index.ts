@@ -6,6 +6,8 @@ export interface Env {
   STORAGE: R2Bucket;
   AI: Ai;
   COUNTER: DurableObjectNamespace;
+  // Comma-separated allowed origins. If unset, defaults to '*' (dev only).
+  CORS_ORIGIN?: string;
 }
 
 // === Durable Object ===
@@ -37,10 +39,13 @@ export class Counter {
 // === Main Worker ===
 const router = Router();
 
+// Allowed origins — set at fetch time from env, falls back to '*' for dev.
+let CORS_ORIGIN = '*';
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': CORS_ORIGIN },
   });
 
 router.options('*', () => json(null, 204));
@@ -111,8 +116,8 @@ router.get('/notes/:id', async ({ params }, env: Env) => {
 // Upload file (R2 + D1)
 router.post('/upload', async (request: Request, env: Env) => {
   const formData = await request.formData();
-  const file = formData.get('file') as File;
-  if (!file) return json({ error: 'file required' }, 400);
+  const file = formData.get('file') as unknown;
+  if (!(file instanceof File)) return json({ error: 'file required' }, 400);
 
   const id = crypto.randomUUID();
   const r2Key = `uploads/${id}-${file.name}`;
@@ -164,5 +169,8 @@ router.get('/counter/:userId', async ({ params }, env: Env) => {
 router.all('*', () => json({ error: 'Not Found' }, 404));
 
 export default {
-  fetch: router.handle,
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    CORS_ORIGIN = env.CORS_ORIGIN ?? '*';
+    return router.handle(request, env, ctx);
+  },
 };
